@@ -5,3 +5,8 @@
 :root {
 	color-scheme: light dark;
 }
+
+@font-face {
+	font-family: 'GongFanNuFangTi';
+	src: url('./assets/fonts/GongFanNuFangTi.ttf') format('truetype');
+}
