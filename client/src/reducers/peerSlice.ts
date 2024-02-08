@@ -5,9 +5,9 @@ export type Peer = Record<
     { stream?: MediaStream; userName?: string; peerId: string }
 >
 
-type PeerState = {
+interface PeerState {
     value: Peer[]
-};
+}
 
 const initialState: PeerState = {
     value: []
