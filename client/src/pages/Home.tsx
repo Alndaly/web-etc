@@ -1,10 +1,9 @@
-import { RoomContext } from '@/context/RoomContext';
 import { UserContext } from '@/context/UserContext';
-import { useContext, useState, useRef } from 'react';
+import { useContext, useRef } from 'react';
+import { ws } from '@/common/ws';
 
 const HomePage = () => {
 	const chineseInputting = useRef(false);
-	const { ws } = useContext(RoomContext);
 	const { userName, setUserName } = useContext(UserContext);
 	const onCreateRoom = () => {
 		console.log('申请创建房间');
@@ -20,7 +19,7 @@ const HomePage = () => {
 				<div className='text-center text-5xl font-GongFanNuFangTi'>聊天室</div>
 				<hr className='border-none bg-white/20 dark:bg-black/20 h-px' />
 				<input
-					className='border rounded-md p-2 h-10 w-full border-zinc-50 dark:border-zinc-500'
+					className='border rounded-md p-2 h-10 w-full border-zinc-50 dark:border-zinc-500 text-center'
 					placeholder='输入你的昵称'
 					onChange={(e) => setUserName(e.target.value)}
 					value={userName}

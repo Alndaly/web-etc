@@ -12,8 +12,8 @@ interface Props {
 }
 
 export const UserContext = createContext<UserValue>({
-	userId: '',
 	userName: '',
+	userId: '',
 	setUserName: (userName) => {},
 });
 

@@ -2,8 +2,8 @@ import { createSlice } from "@reduxjs/toolkit";
 
 export type IMessage = {
     content: string;
-    author?: string;
     timestamp: number;
+    userId: string;
 }
 
 interface ChatState {
@@ -15,16 +15,22 @@ const initialState: ChatState = {
 }
 
 const chatSlice = createSlice({
-    name: 'peer',
+    name: 'chat',
     initialState,
     reducers: {
+        addHistory: (state, action) => {
+            state.value = action.payload;
+        },
         addMessage: (state, action) => {
-            const { content, author, timestamp } = action.payload;
-            state.value.push({ content, author, timestamp });
+            const { content, userId, timestamp } = action.payload;
+            if (!state.value) {
+                state.value = [];
+            }
+            state.value.push({ content, userId, timestamp });
         },
     }
 })
 
-export const { addMessage } = chatSlice.actions
+export const { addMessage, addHistory } = chatSlice.actions
 
 export default chatSlice.reducer;

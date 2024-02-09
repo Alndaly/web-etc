@@ -29,7 +29,7 @@ interface IUser {
 
 interface IMessage {
   content: string;
-  author?: string;
+  userId?: string;
   timestamp: number;
 }
 
@@ -64,11 +64,12 @@ export class EventsGateway {
       client.disconnect()
       return;
     }
-    this.server.to(roomId).emit("get-messages", chats[roomId]);
     console.log(`有用户加入房间\n房间ID ${roomId} 用户ID ${peerId} 用户昵称 ${userName}`);
     rooms[roomId][peerId] = { peerId, userName };
     // 将新用户的socket加入指定房间
     client.join(roomId)
+    // 发送给用户该房间所有消息记录
+    client.emit("get-messages", chats[roomId])
     // 通知房间内的所有用户有用户加入房间
     this.server.to(roomId).emit('user-joined', { peerId, userName })
     // 通知房间内的所有用户当前房间的用户群体
@@ -89,11 +90,6 @@ export class EventsGateway {
       this.server.to(roomId).emit('get-users', {
         participants: rooms[roomId]
       })
-      if (Object.keys(rooms[roomId]).length === 0) {
-        delete rooms[roomId];
-        console.log(`房间ID ${roomId}当前已无用户，房间删除`)
-        console.log(`当前存留房间\n ${Object.values(rooms)}`)
-      }
     })
   }
 
@@ -121,6 +117,7 @@ export class EventsGateway {
   @SubscribeMessage('send-message')
   handleSendMessage(@MessageBody() data: MessageItem) {
     const { roomId, message } = data;
+    console.log(`用户 ${message.userId} 发送消息，消息内容 ${message.content}，房间ID ${roomId}`)
     if (chats[roomId]) {
       chats[roomId].push(message);
     } else {
