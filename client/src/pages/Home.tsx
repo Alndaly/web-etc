@@ -1,6 +1,7 @@
 import { UserContext } from '@/context/UserContext';
 import { useContext, useRef } from 'react';
 import { ws } from '@/common/ws';
+import ImageUpload from '@/components/ImageUpload';
 
 const HomePage = () => {
 	const chineseInputting = useRef(false);
@@ -18,6 +19,7 @@ const HomePage = () => {
 			<div className='felx flex-col space-y-5 p-10 rounded-md bg-white/50 dark:bg-black/50 backdrop-blur border border-zinc-50 dark:border-zinc-500 drop-shadow-lg'>
 				<div className='text-center text-5xl font-GongFanNuFangTi'>聊天室</div>
 				<hr className='border-none bg-white/20 dark:bg-black/20 h-px' />
+				<ImageUpload />
 				<input
 					className='border rounded-md p-2 h-10 w-full border-zinc-50 dark:border-zinc-500 text-center'
 					placeholder='输入你的昵称'

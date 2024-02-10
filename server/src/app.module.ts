@@ -1,11 +1,17 @@
+import { join } from 'path';
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import { EventsGateway } from './events/events.gateway';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventModule } from './events/event.module';
+import { FileModule } from './file/file.module';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService, EventsGateway],
+  imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'static'),
+      serveRoot: '/static',
+    }),
+    EventModule,
+    FileModule
+  ],
 })
-export class AppModule {}
+export class AppModule { }
