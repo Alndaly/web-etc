@@ -1,7 +1,5 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { UserContext } from './UserContext';
-import Peer from 'peerjs';
 import { ws } from '@/common/ws';
 
 interface Props {
@@ -10,12 +8,12 @@ interface Props {
 
 interface RoomValue {
 	roomId: string;
-	participants: any[];
+	participants: Participant[];
 	setRoomId: (id: string) => void;
 }
 
 interface Participant {
-	peerId: string;
+	userId: string;
 	userName: string;
 }
 
@@ -31,17 +29,8 @@ export const RoomProvider: React.FunctionComponent<Props> = ({
 	children: React.ReactNode;
 }) => {
 	const navigate = useNavigate();
-
-	const { userId } = useContext(UserContext);
-
-	const [me, setMe] = useState<Peer>();
 	const [participants, setParticipants] = useState<Participant[]>([]);
 	const [roomId, setRoomId] = useState<string>('');
-
-	useEffect(() => {
-		const peer = new Peer(userId, { debug: 2 });
-		setMe(peer);
-	}, []);
 
 	// 心跳
 	useEffect(() => {
@@ -60,17 +49,16 @@ export const RoomProvider: React.FunctionComponent<Props> = ({
 			console.log('当前房间用户', participants);
 			setParticipants(participants);
 		});
-		ws.on('user-disconnected', ({ peerId }) => {
-			console.log('用户断开连接/离开房间', peerId);
+		ws.on('user-disconnected', ({ userId }) => {
+			console.log('用户断开连接/离开房间', userId);
 		});
 	}, []);
 
 	useEffect(() => {
-		if (!me) return;
-		ws.on('user-joined', ({ peerId }) => {
-			console.log('用户进入房间', peerId);
+		ws.on('user-joined', ({ userId }) => {
+			console.log('用户进入房间', userId);
 		});
-	}, [me]);
+	}, []);
 
 	return (
 		<RoomContext.Provider value={{ roomId, setRoomId, participants }}>

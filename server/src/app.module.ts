@@ -3,6 +3,8 @@ import { Module } from '@nestjs/common';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EventModule } from './events/event.module';
 import { FileModule } from './file/file.module';
+import { RoomController } from './room/room.controller';
+import { RoomModule } from './room/room.module';
 
 @Module({
   imports: [
@@ -11,7 +13,8 @@ import { FileModule } from './file/file.module';
       serveRoot: '/static',
     }),
     EventModule,
-    FileModule
+    FileModule,
+    RoomModule
   ],
 })
 export class AppModule { }

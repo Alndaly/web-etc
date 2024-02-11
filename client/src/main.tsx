@@ -11,13 +11,13 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
 	<Provider store={store}>
 		<BrowserRouter>
-			<UserProvider>
+			<RoomProvider>
 				<ChatProvider>
-					<RoomProvider>
+					<UserProvider>
 						<Router />
-					</RoomProvider>
+					</UserProvider>
 				</ChatProvider>
-			</UserProvider>
+			</RoomProvider>
 		</BrowserRouter>
 	</Provider>
 );

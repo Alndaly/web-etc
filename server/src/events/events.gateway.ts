@@ -8,22 +8,22 @@ import {
 import { v4 as uuidV4 } from 'uuid';
 import { Server, Socket } from 'socket.io';
 
-const rooms: Record<string, Record<string, IUser>> = {};
-const chats: Record<string, IMessage[]> = {};
+export const rooms: Record<string, Record<string, IUser>> = {};
+export const chats: Record<string, IMessage[]> = {};
 
 interface ChangeNameMessage {
-  peerId: string;
+  userId: string;
   userName: string;
   roomId: string
 }
 
 interface IRoomParams {
   roomId: string;
-  peerId: string;
+  userId: string;
 }
 
 interface IUser {
-  peerId: string;
+  userId: string;
   userName: string;
 }
 
@@ -57,21 +57,23 @@ export class EventsGateway {
   }
 
   @SubscribeMessage('join-room')
-  handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: IJoinRoomParams) {
-    const { roomId, peerId, userName } = data;
+  async handleJoinRoom(@ConnectedSocket() client: Socket, @MessageBody() data: IJoinRoomParams) {
+    const { roomId, userId, userName } = data;
     if (!rooms[roomId]) {
       client.emit('room-not-exist', { roomId });
       client.disconnect()
       return;
     }
-    console.log(`有用户加入房间\n房间ID ${roomId} 用户ID ${peerId} 用户昵称 ${userName}`);
-    rooms[roomId][peerId] = { peerId, userName };
+    console.log(`有用户加入房间\n房间ID ${roomId} 用户ID ${userId} 用户昵称 ${userName}`);
+    rooms[roomId][userId] = { userId, userName };
     // 将新用户的socket加入指定房间
     client.join(roomId)
     // 发送给用户该房间所有消息记录
-    client.emit("get-messages", chats[roomId])
+    if (chats[roomId]) {
+      client.emit("get-messages", chats[roomId])
+    }
     // 通知房间内的所有用户有用户加入房间
-    this.server.to(roomId).emit('user-joined', { peerId, userName })
+    this.server.to(roomId).emit('user-joined', { userId, userName })
     // 通知房间内的所有用户当前房间的用户群体
     this.server.to(roomId).emit('get-users', {
       participants: rooms[roomId]
@@ -81,11 +83,11 @@ export class EventsGateway {
       if (!rooms[roomId]) {
         return;
       }
-      console.log(`用户ID ${peerId}离开房间`);
+      console.log(`用户ID ${userId}离开房间`);
       // 删除对应用户在房间内的记录
-      delete rooms[roomId][peerId]
+      delete rooms[roomId][userId]
       // 通知用户所属房间此用户退出房间
-      this.server.to(roomId).emit('user-disconnected', { peerId: peerId })
+      this.server.to(roomId).emit('user-disconnected', { userId: userId })
       // 通知前端当前房间内用户群（可选）
       this.server.to(roomId).emit('get-users', {
         participants: rooms[roomId]
@@ -95,22 +97,22 @@ export class EventsGateway {
 
   @SubscribeMessage('start-share-screen')
   handleStartShareScreen(@MessageBody() data: IRoomParams) {
-    const { roomId, peerId } = data;
-    this.server.to(roomId).emit("user-started-sharing", peerId);
+    const { roomId, userId } = data;
+    this.server.to(roomId).emit("user-started-sharing", userId);
   }
 
   @SubscribeMessage('stop-share-screen')
   handleStopShareScreen(@MessageBody() data: IRoomParams) {
-    const { roomId, peerId } = data;
-    this.server.to(roomId).emit("user-stoped-sharing", peerId);
+    const { roomId, userId } = data;
+    this.server.to(roomId).emit("user-stoped-sharing", userId);
   }
 
   @SubscribeMessage('change-name')
   handleChangeName(@MessageBody() data: ChangeNameMessage) {
-    const { roomId, peerId, userName } = data;
-    if (rooms[roomId] && rooms[roomId][peerId]) {
-      rooms[roomId][peerId].userName = userName;
-      this.server.to(roomId).emit("name-changed", { peerId, userName });
+    const { roomId, userId, userName } = data;
+    if (rooms[roomId] && rooms[roomId][userId]) {
+      rooms[roomId][userId].userName = userName;
+      this.server.to(roomId).emit("name-changed", { userId, userName });
     }
   }
 
